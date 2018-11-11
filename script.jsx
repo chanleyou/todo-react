@@ -52,10 +52,13 @@ class List extends React.Component {
 	}
 
 	removeItem(groupIndex, itemIndex) {
-		this.state.list[groupIndex].items.splice(itemIndex, 1);
-		this.setState({
-			list: this.state.list
-		})
+		var confirm  = window.confirm("Are you sure you want to remove this item?");
+		if (confirm) {
+			this.state.list[groupIndex].items.splice(itemIndex, 1);
+			this.setState({
+				list: this.state.list
+			})
+		}
 	}
 
 	render() {
