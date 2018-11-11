@@ -19,11 +19,14 @@ class List extends React.Component {
 		word: "",
 		warning: "",
 		toggle: true,
-		group: 0
+		group: 0,
+		setTime: false,
+		time: moment().format("YYYY-MM-DDTHH:MM")
 	}
 
 	changeHandler(event) {
-		this.setState({ [event.target.name]: event.target.value });
+		let targetType = (event.target.type === 'checkbox' ? event.target.checked : event.target.value);
+		this.setState({ [event.target.name]: targetType });
 	}
 
 	addItem(event) {
@@ -35,14 +38,15 @@ class List extends React.Component {
 			})
 		} else {
 			if (this.state.toggle) {
-				this.state.list[this.state.group].items.push({ text: this.state.word, datetime: Date.now() });
+				let datetime = (this.state.setTime ? this.state.time : null);
+				this.state.list[this.state.group].items.push({ text: this.state.word, datetime: datetime });
 			} else {
 				this.state.list.push({ name: this.state.word, items: [] });
 			}
 			this.setState({
 				list: this.state.list,
 				word: '',
-				warning: ''
+				warning: '',
 			})
 		}
 	}
@@ -64,10 +68,12 @@ class List extends React.Component {
 
 		if (this.state.toggle) {
 			var itemForm =
-				<form className="input-group my-4" onSubmit={this.addItem}>
-					<input name="word" onChange={this.changeHandler} value={this.state.word} className="form-control" placeholder="New Item" autoComplete="off" />
-					<div className="input-group-append">
-						<button type="submit" className="btn btn-danger">Add Item</button>
+				<form className="my-2" onSubmit={this.addItem}>
+					<div className="input-group my-3">
+						<input name="word" onChange={this.changeHandler} value={this.state.word} className="form-control" placeholder="New Item" autoComplete="off" />
+						<div className="input-group-append">
+							<button type="submit" className="btn btn-danger">Add Item</button>
+						</div>
 					</div>
 					<div className="input-group my-3">
 						<div className="input-group-prepend">
@@ -76,6 +82,17 @@ class List extends React.Component {
 						<select name="group" onChange={this.changeHandler} className="custom-select" defaultValue="0">
 						{groupSelect}
 						</select>
+					</div>
+					<div className="input-group my-3">
+						<div className="input-group-prepend">
+							<label className="input-group-text">Date</label>
+						</div>
+						<input type="datetime-local" className="form-control" onChange={this.changeHandler} name="time" value={this.state.time} />
+						<div className="input-group-append">
+							<label className="input-group-text">
+								<input type="checkbox" name="setTime" checked={this.state.setTime} onChange={this.changeHandler} />
+							</label>
+						</div>
 					</div>
 				</form>
 		} else {
@@ -160,14 +177,20 @@ class ListItems extends React.Component {
 	}
 	render() {
 
-
 		let list = this.props.list.map((item, index) => {
-			
+
+			let time = <span />
+
+			if (item.datetime) {
+				time = <span>{moment(item.datetime).format("h:mma ddd Do MMMM YYYY")}</span>
+			}			
 			return (
-				<li key={item.text}>
-					{item.text}<br />
-					{moment(item.datetime).format("h:mma ddd Do MMMM YYYY")}
-					<button className="btn btn-danger btn-sm" onClick={() => { this.removeItem(this.props.index, index) }}>X</button>
+				<li key={item.text} className="my-3">
+					<button className="btn btn-danger btn-sm float-right" onClick={() => { this.removeItem(this.props.index, index) }}>X</button>
+					<p>
+						{item.text}
+						<span className="ml-2 small text-secondary">{time}</span>
+					</p>
 				</li>
 			)
 		})
