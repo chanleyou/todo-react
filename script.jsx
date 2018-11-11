@@ -17,23 +17,23 @@ class List extends React.Component {
 	}
 
 	addItem(event) { 
+		event.preventDefault();
+		
 		if (this.state.word.length > 2) {
-			event.preventDefault();
-			this.state.list.push(this.state.word);
+			this.state.list.push({text: this.state.word, datetime: Date.now()});
 			this.setState({
 				list: this.state.list,
 				word: '',
 				warning: ''
 			})
 		} else {
-			event.preventDefault();
 			this.setState({
 				warning: "List item must be at 3 characters long."
 			})
 		}
 	}
 
-	removeItem(index) {
+	removeItem(index) {	
 		this.state.list.splice(index, 1);
 		this.setState({
 			list: this.state.list
@@ -86,8 +86,9 @@ class ListItems extends React.Component {
 
 		let list = this.props.list.map((item, index) => {
 			return (
-				<li key={item}>
-					{item}<br />
+				<li key={item.text}>
+					{item.text}<br />
+					{moment(item.datetime).format("h:mma ddd Do MMMM YYYY")} 
 					<button className="btn btn-danger btn-sm" onClick={() => {this.removeItem(index)}}>X</button>
 				</li>
 			)
