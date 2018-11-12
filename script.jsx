@@ -3,6 +3,7 @@ class List extends React.Component {
 		super()
 		this.changeHandler = this.changeHandler.bind(this);
 		this.addItem = this.addItem.bind(this);
+		this.editItem = this.editItem.bind(this);
 		this.removeItem = this.removeItem.bind(this);
 
 		this.toggleTrue = () => {
@@ -15,7 +16,7 @@ class List extends React.Component {
 	}
 
 	state = {
-		list: [{name: '', items: []}],
+		list: [{ name: '', items: [] }],
 		word: "",
 		warning: "",
 		toggle: true,
@@ -51,8 +52,18 @@ class List extends React.Component {
 		}
 	}
 
+	editItem(groupIndex, itemIndex) {
+		var edit = window.prompt("What do you want to rename this item to?");
+		if (edit) {
+			this.state.list[groupIndex].items[itemIndex].text = edit;
+			this.setState({
+				list: this.state.list
+			})
+		}
+	}
+
 	removeItem(groupIndex, itemIndex) {
-		var confirm  = window.confirm("Are you sure you want to remove this item?");
+		var confirm = window.confirm("Are you sure you want to remove this item?");
 		if (confirm) {
 			this.state.list[groupIndex].items.splice(itemIndex, 1);
 			this.setState({
@@ -63,7 +74,7 @@ class List extends React.Component {
 
 	render() {
 
-		var groupSelect = this.state.list.map ((item, index) => {
+		var groupSelect = this.state.list.map((item, index) => {
 			return (
 				<option key={index} value={index}>{item.name}</option>
 			)
@@ -83,7 +94,7 @@ class List extends React.Component {
 							<label className="input-group-text">Group</label>
 						</div>
 						<select name="group" onChange={this.changeHandler} className="custom-select" defaultValue="0">
-						{groupSelect}
+							{groupSelect}
 						</select>
 					</div>
 					<div className="input-group my-3">
@@ -123,7 +134,7 @@ class List extends React.Component {
 						</div>
 					</div>
 				</div>
-				<ListGroups list={this.state.list} removeItem={this.removeItem} />
+				<ListGroups list={this.state.list} editItem={this.editItem} removeItem={this.removeItem} />
 			</div>
 		);
 	}
@@ -131,14 +142,20 @@ class List extends React.Component {
 
 class ListGroups extends React.Component {
 	constructor() {
-		super ()
-		
+		super()
+
+		this.editItem = this.editItem.bind(this);
 		this.removeItem = this.removeItem.bind(this);
 	}
 
-	removeItem(index) {
-		this.props.removeItem(index);
+	editItem(groupIndex, itemIndex) {
+		this.props.editItem(groupIndex, itemIndex);
 	}
+
+	removeItem(groupIndex, itemIndex) {
+		this.props.removeItem(groupIndex, itemIndex);
+	}
+
 	render() {
 
 		let list = this.props.list.map((group, index) => {
@@ -146,7 +163,7 @@ class ListGroups extends React.Component {
 				<div key={group.name} className="col-12">
 					<div className="card p-3 my-2 shadow-sm">
 						<h5>{group.name}</h5>
-						<ListItems index={index} list={group.items} removeItem={this.props.removeItem} /> 
+						<ListItems index={index} list={group.items} editItem={this.props.editItem} removeItem={this.props.removeItem} />
 					</div>
 				</div>
 			)
@@ -171,8 +188,13 @@ class Alert extends React.Component {
 class ListItems extends React.Component {
 	constructor() {
 		super()
-		
+
+		this.editItem = this.editItem.bind(this);
 		this.removeItem = this.removeItem.bind(this);
+	}
+
+	editItem(groupIndex, itemIndex) {
+		this.props.editItem(groupIndex, itemIndex);
 	}
 
 	removeItem(groupIndex, itemIndex) {
@@ -185,11 +207,15 @@ class ListItems extends React.Component {
 			let time = <span />
 
 			if (item.datetime) {
+				console.log(item.datetime);
 				time = <span>{moment(item.datetime).format("h:mma ddd Do MMMM YYYY")}</span>
-			}			
+			}
 			return (
 				<li key={item.text} className="my-3">
-					<button className="btn btn-danger btn-sm float-right" onClick={() => { this.removeItem(this.props.index, index) }}>X</button>
+					<div className="btn-group float-right">
+						<button className="btn btn-outline-danger btn-sm" onClick={() => { this.editItem(this.props.index, index) }}>E</button>
+						<button className="btn btn-outline-danger btn-sm" onClick={() => { this.removeItem(this.props.index, index) }}>X</button>
+					</div>
 					<p>
 						{item.text}
 						<span className="ml-2 small text-secondary">{time}</span>
